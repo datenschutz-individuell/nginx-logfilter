@@ -6,7 +6,7 @@ What is worth flagging here, and what has been decided. Project facts are in [`C
 
 - **Anything that lets the tag reach a path unvalidated**, or that writes outside the log directory.
 - **An address that survives.** A new nginx message shape that carries the client address, an IPv6 notation `IpAddr` does not parse, a change to `strip_client_ip` that skips a match.
-- **Text that is removed although it is not an address.** Only parsed IP addresses go.
+- **Text that is removed although it is not an address.** Only parsed IP addresses (with or without port) go, plus what could be the start of an address in a client field at the end of a line.
 - **Permissions.** The log directory must not be `/var/log/nginx`, and nothing may make that directory writable for the worker user (CVE-2016-1247).
 - **A line split across writes.** Each line goes out in one `write_all` on an `O_APPEND` file.
 - **Unsafe code** beyond the one `from_raw_fd` for socket activation.
@@ -18,5 +18,7 @@ What is worth flagging here, and what has been decided. Project facts are in [`C
 - **The service runs as the nginx worker user.** A separate user would only protect the `.err` files from the workers, which write that content anyway.
 - **The fallback `bind` sets mode 0600 after binding.** It is for manual runs and tests; in production systemd creates the socket with `SocketMode`.
 - **Lines are dropped, not stored raw, when the header does not parse.** A raw copy would keep the address.
+- **No upgrade step for `/var/log/nginx`.** Only an unpublished interim build, also numbered 1.0.0, made it group-writable; the published 1.0.0 never touched it.
+- **No limit on open files, no faster search.** Both would only matter against a sender that already runs as the worker user, which can do worse (KISS, risk-weighed).
 - **`String::from_utf8_lossy`.** nginx error lines may carry bytes from requests; replacing invalid UTF-8 is fine for a log.
 - **No timestamp of our own.** nginx's timestamp is part of the text; the syslog one is dropped.

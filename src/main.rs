@@ -63,15 +63,36 @@ fn main() {
                 exit(1) // systemd restarts the service
             }
         };
-        let message = String::from_utf8_lossy(&buf[..n]);
-        if let Some((tag, text)) = syslog::parse(&message) {
-            let line = strip_client_ip(text.trim_end_matches(['\n', '\0']));
-            if let Err(e) = logs.append(tag, &line) {
-                eprintln!("{tag}.err: {e}");
-            }
-        } else {
-            let head: String = strip_client_ip(&message).chars().take(60).collect();
-            eprintln!("unparsable message dropped (nohostname missing?): {head:?}");
+        handle(&mut logs, &String::from_utf8_lossy(&buf[..n]));
+    }
+}
+
+/// Parses one syslog message, removes client addresses and appends the line to its file.
+fn handle(logs: &mut LogDir, message: &str) {
+    let message = message.trim_end_matches(['\n', '\0']);
+    if let Some((tag, text)) = syslog::parse(message) {
+        let line = strip_client_ip(text);
+        if let Err(e) = logs.append(tag, line) {
+            eprintln!("{tag}.err: {e}");
         }
+    } else {
+        let head: String = strip_client_ip(message).chars().take(60).collect();
+        eprintln!("unparsable message dropped (nohostname missing?): {head:?}");
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn message_is_scrubbed_on_the_way_to_the_file() {
+        let d = std::env::temp_dir().join(format!("nginx-logfilter-handle-{}", std::process::id()));
+        fs::create_dir_all(&d).unwrap();
+        let mut logs = LogDir::new(&d);
+        handle(&mut logs, "<187>Nov  2 15:00:00 ex: 2026/11/02 [error] 1#1: *5 x, client: 9.9.9.9, server: d\n");
+        handle(&mut logs, "<187>Nov  2 15:00:00 host ex: dropped, client: 1.2.3.4");
+        assert_eq!(fs::read_to_string(d.join("ex.err")).unwrap(), "2026/11/02 [error] 1#1: *5 x, server: d\n");
+        fs::remove_dir_all(d).unwrap();
     }
 }

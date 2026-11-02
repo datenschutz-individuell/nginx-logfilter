@@ -16,7 +16,7 @@ The service writes `/var/log/nginx-logfilter/example_com.err`.
 
 - **`tag`** becomes the file name. nginx allows letters, digits and `_` only, up to 32 characters, so `mta-sts` has to become `mta_sts`. The service rejects any other tag.
 - **`nohostname`** is required; messages with a hostname are dropped with a note on stderr.
-- **What is removed:** the field `, client: <IP>`, and at level `info` the address in "client <IP> closed …". Only text that parses as an IPv4 or IPv6 address is removed; other text containing `client:` – a PHP message passed on by FastCGI, say – stays.
+- **What is removed:** the field `, client: <IP>` (stream: `, udp client: <IP>`), and at level `info` the address in "client <IP> closed …" or "client <IP>:<port> connected to …". Only an IPv4 or IPv6 address, with or without a port, is removed; other text containing `client:` – a PHP message passed on by FastCGI, say – stays. At the very end of a line, where nginx cuts long lines, a client field also goes if what is left could be the start of an address.
 - **Rotation:** files stay open. When a file's inode changes, the service reopens it.
 - **Restarts:** systemd holds the socket (`nginx-logfilter.socket`), so it survives restarts and updates of the service, and the kernel buffers what nginx sends in the meantime. If the service is down, nginx keeps running.
 - **Not covered:** messages nginx logs before it has read its configuration go to the compiled-in `--error-log-path` (`nginx -V`). Other places an address can appear – a URL or header quoted in a message, `upstream:` – are left alone.
@@ -35,7 +35,7 @@ sudo systemd-tmpfiles --create nginx-logfilter.conf
 sudo systemctl daemon-reload && sudo systemctl enable --now nginx-logfilter.socket nginx-logfilter.service
 ```
 
-The units assume nginx workers run as `http` (Arch Linux). On Debian and Ubuntu, change `User`, `Group`, `SocketUser`, `SocketGroup` and the logrotate `su`/`create` lines to `www-data`.
+The units assume nginx workers run as `http` (Arch Linux). On Debian and Ubuntu, change `User`, `Group`, `SocketUser`, `SocketGroup` and the logrotate `su` line to `www-data`.
 
 Then switch each `error_log` to the syslog form above and reload nginx.
 

@@ -2,7 +2,7 @@
 
 ## What it promises
 
-The `.err` files contain no client IP address in the places nginx puts one: the `, client: <IP>` field and "client <IP> …" at level `info`.
+The `.err` files contain no client IP address in the places nginx puts one: the `, client: <IP>` field (stream: `, udp client: <IP>`), also what is left of it when nginx cut a line short, and "client <IP> …" or "client <IP>:<port> …" at level `info`.
 
 It does not promise that no address appears anywhere. A request line, a header or an upstream message quoted by nginx can contain one, and so can a PHP message passed on by FastCGI. Those are not touched, because telling an address in free text apart from, say, a version number or a server address is guesswork.
 

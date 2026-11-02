@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-02
+
+### Fixed
+
+- Remove the address from the stream module's UDP field `, udp client: <IP>`
+- Remove addresses with a port, as stream and mail log them at level `info` ("client 1.2.3.4:5678 connected to …")
+- Remove an address that nginx cut short at the end of a long line
+- Remove an address at the end of a message that cannot be parsed, before its start goes to stderr
+
+### Changed
+
+- logrotate: no `compress`/`delaycompress` (with `rotate 1` the old file was never compressed) and `nocreate`, as the service creates the file itself
+
 ## [1.0.0] - 2026-11-02
 
 ### Added
@@ -17,5 +30,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - systemd units with sandboxing, tmpfiles and logrotate configuration
 - Logs in a directory of their own, `/var/log/nginx-logfilter`
 
-[Unreleased]: https://github.com/datenschutz-individuell/nginx-logfilter/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/datenschutz-individuell/nginx-logfilter/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/datenschutz-individuell/nginx-logfilter/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/datenschutz-individuell/nginx-logfilter/releases/tag/v1.0.0
