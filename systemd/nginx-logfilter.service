@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2026 Olav Seyfarth
+# SPDX-License-Identifier: CC0-1.0
+
+[Unit]
+Description=nginx error log without client IP addresses (syslog receiver)
+Documentation=https://github.com/datenschutz-individuell/nginx-logfilter
+Requires=nginx-logfilter.socket
+After=nginx-logfilter.socket
+
+[Service]
+ExecStart=/usr/local/bin/nginx-logfilter
+# The user nginx workers run as (Arch: http, Debian: www-data); must match the socket's SocketUser.
+User=http
+Group=http
+Restart=always
+RestartSec=1
+# A directory of its own: /var/log/nginx must stay writable by root only, or the nginx master,
+# which opens its logs there as root, can be pointed at any file by a symlink (cf. CVE-2016-1247).
+LogsDirectory=nginx-logfilter
+LogsDirectoryMode=0750
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateNetwork=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX
+MemoryDenyWriteExecute=yes
+LockPersonality=yes
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

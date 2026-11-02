@@ -1,0 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Olav Seyfarth
+# SPDX-License-Identifier: CC0-1.0
+
+# Directory of the syslog socket; nginx workers must be able to traverse it.
+d /run/nginx-logfilter 0755 root root -

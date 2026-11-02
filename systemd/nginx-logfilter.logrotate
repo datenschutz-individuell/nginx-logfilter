@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2026 Olav Seyfarth
+# SPDX-License-Identifier: CC0-1.0
+
+# The service reopens a file once its inode changes, so no postrotate signal is needed.
+/var/log/nginx-logfilter/*.err {
+	monthly
+	rotate 1
+	compress
+	delaycompress
+	missingok
+	notifempty
+	su http http
+	create 640 http http
+}

@@ -1,0 +1,16 @@
+[package]
+name = "nginx-logfilter"
+version = "1.0.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Receives the nginx error log over syslog and writes it without client IP addresses"
+license = "CC0-1.0"
+repository = "https://github.com/datenschutz-individuell/nginx-logfilter"
+keywords = ["nginx", "syslog", "privacy", "gdpr", "logging"]
+categories = ["command-line-utilities"]
+
+[profile.release]
+opt-level = 3
+lto = true
+panic = "abort"
+strip = true
