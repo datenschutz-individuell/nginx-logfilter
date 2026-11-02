@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2026 Olav Seyfarth
+# SPDX-License-Identifier: CC0-1.0
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust: ["1.85", stable] # rust-version in Cargo.toml, and the newest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: rustup toolchain install ${{ matrix.rust }} --profile minimal --component clippy,rustfmt && rustup default ${{ matrix.rust }}
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets -- -D warnings -W clippy::pedantic
+      - run: cargo test

@@ -32,3 +32,4 @@ clippy pedantic must be clean. Unit tests live next to the code in each module.
 - **Version** lives in `Cargo.toml` (and `Cargo.lock`); every release gets a `CHANGELOG.md` section (Keep a Changelog, SemVer).
 - **SPDX headers** (`CC0-1.0`) on source and unit files.
 - English for code, comments and docs.
+- **CI** (`.github/workflows/ci.yml`) runs the commands above on Rust 1.85 and stable; actions are pinned to a commit SHA with a version comment.
